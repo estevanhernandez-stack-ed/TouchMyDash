@@ -37,3 +37,17 @@ export interface Project {
     lastUpdate: string;
     progress: number;
 }
+
+export interface Device {
+  id: string;
+  name: string;
+  type: 'light' | 'thermostat' | 'blinds' | 'lock';
+  state: boolean | number; // boolean for on/off, number for brightness/temp
+}
+
+export interface Room {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  devices: Device[];
+}

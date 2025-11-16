@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+// Fix: Import the correct 'GoogleGenAI' class from '@google/genai'.
 import { GoogleGenAI } from '@google/genai';
 import { CloseIcon, WandIcon } from './icons';
 
@@ -23,15 +25,21 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ isOpen, onClose }) => {
     setGeneratedLayout('');
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+      // Fix: Refactor Gemini API usage to follow the latest SDK guidelines.
+      const ai = new GoogleGenAI({apiKey: process.env.API_KEY as string});
+
+      const fullPrompt = `Generate a new theme and layout concept for a futuristic coder/gamer dashboard based on this idea: "${prompt}". Describe the color palette, typography, widget placement, and overall aesthetic. Be creative and detailed. Format the output as clean text.`;
+      
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: `Generate a new theme and layout concept for a futuristic coder/gamer dashboard based on this idea: "${prompt}". Describe the color palette, typography, widget placement, and overall aesthetic. Be creative and detailed. Format the output as clean text.`,
+        contents: fullPrompt,
         config: {
           systemInstruction: 'You are a creative UI/UX designer specializing in futuristic and cyberpunk aesthetics.'
         }
       });
-      setGeneratedLayout(response.text);
+      const text = response.text;
+      setGeneratedLayout(text);
+
     } catch (e) {
       console.error(e);
       setError('Failed to generate layout. Please check your connection or API key and try again.');

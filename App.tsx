@@ -1,27 +1,33 @@
+
+
 import React, { useState } from 'react';
 import Clock from './components/Clock';
 import Weather from './components/Weather';
 import DashboardTab from './components/DashboardTab';
 import MusicTab from './components/MusicTab';
 import SocialTab from './components/SocialTab';
+import SmartHomeTab from './components/SmartHomeTab';
 import ControlPanel from './components/ControlPanel';
-import { DashboardIcon, MusicIcon, SocialIcon, ScreensaverIcon, SettingsIcon } from './components/icons';
+import { DashboardIcon, MusicIcon, SocialIcon, ScreensaverIcon, SettingsIcon, SmartHomeIcon } from './components/icons';
 import { Screensaver } from './components/Screensaver';
 
-type Tab = 'dashboard' | 'music' | 'social';
+type Tab = 'dashboard' | 'music' | 'social' | 'smarthome';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [activeTab, setActiveTab] = useState<Tab>('smarthome');
   const [isScreensaverActive, setScreensaverActive] = useState(false);
   const [isControlPanelOpen, setControlPanelOpen] = useState(false);
 
   // Fix: Use React.useRef to hold the timeout ID to persist it across re-renders.
   // This also resolves the NodeJS type error as we can use the return type of browser's setTimeout.
-  const timeoutIdRef = React.useRef<number>();
+  // Fix: Correctly type the ref to allow for an undefined initial value.
+  // FIX: Explicitly pass `undefined` to `useRef` to address "Expected 1 arguments, but got 0" error.
+  const timeoutIdRef = React.useRef<number | undefined>(undefined);
 
   const resetScreensaverTimer = React.useCallback(() => {
     if (timeoutIdRef.current) {
-      clearTimeout(timeoutIdRef.current);
+      // FIX: Use window.clearTimeout to avoid ambiguity with Node.js's clearTimeout type definitions.
+      window.clearTimeout(timeoutIdRef.current);
     }
     if(isScreensaverActive) {
       setScreensaverActive(false);
@@ -38,7 +44,8 @@ const App: React.FC = () => {
 
     return () => {
       if (timeoutIdRef.current) {
-        clearTimeout(timeoutIdRef.current);
+        // FIX: Use window.clearTimeout to avoid ambiguity with Node.js's clearTimeout type definitions.
+        window.clearTimeout(timeoutIdRef.current);
       }
       document.removeEventListener('mousemove', resetScreensaverTimer);
       document.removeEventListener('mousedown', resetScreensaverTimer);
@@ -55,8 +62,10 @@ const App: React.FC = () => {
         return <MusicTab />;
       case 'social':
         return <SocialTab />;
+      case 'smarthome':
+        return <SmartHomeTab />;
       default:
-        return <DashboardTab />;
+        return <SmartHomeTab />;
     }
   };
 
@@ -68,7 +77,7 @@ const App: React.FC = () => {
       }`}
     >
       {icon}
-      <span className="mt-1 text-xs capitalize">{tabName}</span>
+      <span className="mt-1 text-xs capitalize">{tabName === 'smarthome' ? 'Smart Home' : tabName}</span>
     </button>
   );
 
@@ -94,6 +103,7 @@ const App: React.FC = () => {
         </div>
 
         <nav className="flex bg-gray-900 border-t border-gray-700/50 mt-auto">
+          <NavButton tabName="smarthome" icon={<SmartHomeIcon />} />
           <NavButton tabName="dashboard" icon={<DashboardIcon />} />
           <NavButton tabName="music" icon={<MusicIcon />} />
           <NavButton tabName="social" icon={<SocialIcon />} />
